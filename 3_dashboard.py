@@ -6,7 +6,32 @@ import os
 LOG_FILE = "data/sms_log.json"
 
 st.set_page_config(page_title="SRM - Suivi SMS", page_icon="📊", layout="wide")
+
+# ── Authentication ─────────────────────────────────────────────────
+if "logged_in" not in st.session_state:
+    st.session_state.logged_in = False
+
+if not st.session_state.logged_in:
+    st.title("🔐 SRM — Connexion")
+    st.divider()
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        username = st.text_input("👤 Nom d'utilisateur")
+        password = st.text_input("🔑 Mot de passe", type="password")
+        if st.button("Se connecter", use_container_width=True):
+            if username == "srm" and password == "srm2024":
+                st.session_state.logged_in = True
+                st.rerun()
+            else:
+                st.error("Nom d'utilisateur ou mot de passe incorrect")
+    st.stop()
+
+# ── Dashboard ──────────────────────────────────────────────────────
 st.title("📊 SRM — Tableau de bord SMS")
+
+if st.button("🚪 Déconnexion"):
+    st.session_state.logged_in = False
+    st.rerun()
 
 if not os.path.exists(LOG_FILE):
     st.info("Aucun SMS envoye pour le moment.")
