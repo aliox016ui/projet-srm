@@ -9,7 +9,7 @@ st.set_page_config(page_title="SRM - Suivi SMS", page_icon="📊", layout="wide"
 st.title("📊 SRM — Tableau de bord SMS")
 
 if not os.path.exists(LOG_FILE) or LOG_FILE is None:
-    st.info("📭 Aucun SMS envoyé pour le moment. Le dashboard s'activera après le premier envoi.")
+    st.infost.info("Aucun SMS envoye pour le moment.")
     st.stop()
 
 with open(LOG_FILE, "r", encoding="utf-8") as f:
