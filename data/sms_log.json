@@ -1,0 +1,47 @@
+[
+  {
+    "timestamp": "2026-04-16 03:54:18",
+    "phone": "+212770887143",
+    "contrat": "CTR-TEST-001",
+    "montant": "500.0",
+    "message": "Madame, Monsieur, Votre facture CTR-TEST-001 est impayes. La SRM-CS vous offre la possibilite d'echelonner le montant. Veuillez vous rendre a l'agence commerciale la plus proche pour legaliser une demande de facilite.",
+    "statut": "ERREUR",
+    "message_id": ""
+  },
+  {
+    "timestamp": "2026-04-16 03:57:16",
+    "phone": "+212770887143",
+    "contrat": "CTR-TEST-001",
+    "montant": "500.0",
+    "message": "Madame, Monsieur, Votre facture CTR-TEST-001 est impayes. La SRM-CS vous offre la possibilite d'echelonner le montant. Veuillez vous rendre a l'agence commerciale la plus proche pour legaliser une demande de facilite.",
+    "statut": "PENDING",
+    "message_id": "4763082361507951432269"
+  },
+  {
+    "timestamp": "2026-04-16 03:59:26",
+    "phone": "+212770887143",
+    "contrat": "CTR-TEST-001",
+    "montant": "500.0",
+    "message": "Madame, Monsieur, Votre facture CTR-TEST-001 est impayes. La SRM-CS vous offre la possibilite d'echelonner le montant. Veuillez vous rendre a l'agence commerciale la plus proche pour legaliser une demande de facilite.",
+    "statut": "PENDING",
+    "message_id": "4763083663617951438321"
+  },
+  {
+    "timestamp": "2026-04-16 04:26:15",
+    "phone": "+212772695559",
+    "contrat": "N20071207",
+    "montant": "2500",
+    "message": "Madame, Monsieur, Votre facture N20071207 est impayes. La SRM-CS vous offre la possibilite d'echelonner le montant. Veuillez vous rendre a l'agence commerciale la plus proche pour legaliser une demande de facilite.",
+    "statut": "PENDING",
+    "message_id": "4763099754287951921886"
+  },
+  {
+    "timestamp": "2026-04-16 04:30:17",
+    "phone": "+212772695559",
+    "contrat": "N20071207",
+    "montant": "2500",
+    "message": "Madame, Monsieur, Votre facture N20071207 est impayes. La SRM-CS vous offre la possibilite d'echelonner le montant. Veuillez vous rendre a l'agence commerciale la plus proche pour legaliser une demande de facilite.",
+    "statut": "PENDING",
+    "message_id": "4763102175137952322734"
+  }
+]
