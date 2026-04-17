@@ -11,7 +11,9 @@ st.set_page_config(
     page_icon="💧",
     layout="wide"
 )
-
+from PIL import Image
+img = Image.open("logo.png")
+st.image(img, width=250)
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
