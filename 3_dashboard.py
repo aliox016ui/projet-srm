@@ -12,7 +12,9 @@ st.set_page_config(
     layout="wide"
 )
 from PIL import Image
-img = Image.open("logo.png")
+import os
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+img = Image.open(os.path.join(BASE_DIR, "logo.png"))
 st.image(img, width=250)
 st.markdown("""
 <style>
