@@ -67,7 +67,7 @@ st.markdown("""
 
 .hero {
     background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)),
-                url('https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/Menara_garden_and_Atlas%2C_Marrakech.jpg/1280px-Menara_garden_and_Atlas%2C_Marrakech.jpg');
+                url('https://images.unsplash.com/photo-1597212618440-806262de4f6b?w=1600&q=80');
     background-size: cover;
     background-position: center;
     min-height: 92vh;
