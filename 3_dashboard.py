@@ -2,14 +2,14 @@ import streamlit as st
 import pandas as pd
 import json
 import os
-from config import LOG_FILE
+
+LOG_FILE = "data/sms_log.json"
 
 st.set_page_config(page_title="SRM - Suivi SMS", page_icon="📊", layout="wide")
-
 st.title("📊 SRM — Tableau de bord SMS")
 
-if not os.path.exists(LOG_FILE) or LOG_FILE is None:
-    st.infost.info("Aucun SMS envoye pour le moment.")
+if not os.path.exists(LOG_FILE):
+    st.info("Aucun SMS envoye pour le moment.")
     st.stop()
 
 with open(LOG_FILE, "r", encoding="utf-8") as f:
