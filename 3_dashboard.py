@@ -6,7 +6,7 @@ import time
 
 # ─── CONFIG ─────────────────────────────────────────────
 LOG_FILE = "data/sms_log.json"
-LOGO_PATH = "logo.jpg"  # حط هنا اللوغو لي عطيتك
+LOGO_PATH = "assets/logo.png"
 
 st.set_page_config(page_title="SRM-CS Dashboard", layout="wide")
 
