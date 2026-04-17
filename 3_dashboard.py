@@ -166,7 +166,7 @@ with col_logout:
         st.session_state.logged_in = False
         st.rerun()
 
-# Data
+# ─── DATA ─────────────────────────────────────────────────
 if not os.path.exists(LOG_FILE):
     st.info("📭 Aucun SMS envoyé pour le moment.")
     st.stop()
@@ -175,13 +175,26 @@ with open(LOG_FILE, "r", encoding="utf-8") as f:
     log = json.load(f)
 
 df = pd.DataFrame(log)
+df["timestamp"] = pd.to_datetime(df["timestamp"])
+df["date"] = df["timestamp"].dt.date
 
+# ─── FILTRE PAR DATE ──────────────────────────────────────
+st.markdown("### 📅 Filtrer par date")
+dates_dispos = sorted(df["date"].unique(), reverse=True)
+date_choisie = st.selectbox(
+    "Choisir un jour",
+    dates_dispos,
+    format_func=lambda d: d.strftime("%d/%m/%Y")
+)
+
+df = df[df["date"] == date_choisie]
+
+# ─── METRICS ──────────────────────────────────────────────
 total   = len(df)
 pending = len(df[df["statut"] == "PENDING"])
 livre   = len(df[df["statut"] == "DELIVERED"])
 erreur  = len(df[df["statut"] == "ERREUR"])
 
-# Metrics
 c1, c2, c3, c4 = st.columns(4)
 with c1:
     st.markdown(f'<div class="metric-card"><div class="metric-value">{total}</div><div class="metric-label">📨 Total envoyés</div></div>', unsafe_allow_html=True)
@@ -194,7 +207,7 @@ with c4:
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# Filtre + Table
+# ─── TABLE ────────────────────────────────────────────────
 st.markdown("### 📋 Détail des envois")
 statuts = ["Tous"] + sorted(df["statut"].unique().tolist())
 choix = st.selectbox("Filtrer par statut", statuts)
@@ -203,6 +216,6 @@ st.dataframe(df_affiche[["timestamp","phone","contrat","montant","statut"]], use
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# Chart
+# ─── CHART ────────────────────────────────────────────────
 st.markdown("### 📊 Répartition des statuts")
 st.bar_chart(df["statut"].value_counts())
