@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import json
 import os
+import re
 
 LOG_FILE = "data/sms_log.json"
 
@@ -21,7 +22,6 @@ st.markdown("""
 .nav-brand { font-size: 15px; font-weight: 700; color: #2e7d32; display: flex; align-items: center; gap: 10px; }
 .nav-circle { width: 32px; height: 32px; background: #2e7d32; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 14px; }
 .nav-links { display: flex; gap: 28px; font-size: 12px; font-weight: 600; color: #444; }
-.nav-btn { background: #2e7d32; color: white !important; padding: 7px 18px; border-radius: 7px; font-size: 12px; font-weight: 600; cursor: pointer; }
 
 .hero { background: linear-gradient(rgba(0,0,0,0.52), rgba(0,0,0,0.52)), url('https://images.unsplash.com/photo-1597212720158-ae3d645dfdb5?w=1400&q=80') center/cover no-repeat; padding: 90px 60px; color: white; min-height: 340px; display: flex; flex-direction: column; justify-content: center; }
 .hero-sub { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: #a5d6a7; margin-bottom: 10px; }
@@ -86,7 +86,7 @@ if "page" not in st.session_state:
     st.session_state.page = "home"
 
 # ── NAVBAR ─────────────────────────────────────────────────────────
-def show_navbar(show_admin_btn=True):
+def show_navbar():
     st.markdown("""
     <div class='topbar'>
         <span>📞 Tél : 080200123</span>
@@ -278,7 +278,6 @@ elif st.session_state.page == "dashboard":
     </div>
     """, unsafe_allow_html=True)
 
-    # ── FILTRES ──
     col_f1, col_f2, col_f3 = st.columns(3)
     with col_f1:
         statuts = ["Tous"] + sorted(df["statut"].unique().tolist())
@@ -345,10 +344,13 @@ elif st.session_state.page == "client":
                 r = recherche.strip()
                 r_intl = "+212" + r[1:] if r.startswith("0") else r
 
+                df["phone"] = df["phone"].astype(str)
+                df["contrat"] = df["contrat"].astype(str)
+
                 masque = (
-                    df["phone"].str.contains(r, case=False, na=False) |
-                    df["phone"].str.contains(r_intl, case=False, na=False) |
-                    df["contrat"].str.contains(r, case=False, na=False)
+                    df["phone"].str.contains(re.escape(r), case=False, na=False) |
+                    df["phone"].str.contains(re.escape(r_intl), case=False, na=False) |
+                    df["contrat"].str.contains(re.escape(r), case=False, na=False)
                 )
                 resultats = df[masque].drop_duplicates(subset=["contrat"])
 
