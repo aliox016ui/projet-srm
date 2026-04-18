@@ -3,4 +3,3 @@ openpyxl
 requests
 streamlit
 python-dotenv
-Pillow
