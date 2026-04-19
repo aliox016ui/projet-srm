@@ -1,4 +1,4 @@
-FROM python:3.13-slim
+FROM python:3.11-slim
 
 WORKDIR /app
 
@@ -9,4 +9,4 @@ COPY . .
 
 EXPOSE 8501
 
-CMD ["python", "-m", "streamlit", "run", "3_dashboard.py", "--server.port=8501", "--server.address=0.0.0.0"]
+CMD ["python", "scheduler.py"]

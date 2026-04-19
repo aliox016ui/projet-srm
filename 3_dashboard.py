@@ -6,8 +6,7 @@ import re
 
 LOG_FILE = "data/sms_log.json"
 
-st.set_page_config(page_title="SRM-MS", page_icon="💧", layout="wide", initial_sidebar_state="collapsed")
-
+st.set_page_config(page_title="SRM-MS", page_icon="https://www.srm-ms.ma/wp-content/uploads/2024/10/cropped-favicon-srm-32x32.png", layout="wide", initial_sidebar_state="collapsed")
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
