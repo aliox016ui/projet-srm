@@ -22,21 +22,6 @@ def get_supabase_client():
         return create_client(SUPABASE_URL, SUPABASE_KEY)
     return None
 
-def already_sent(supabase, phone, contrat):
-    if not supabase:
-        return False
-    try:
-        res = supabase.table("sms_log") \
-            .select("id") \
-            .eq("phone", phone) \
-            .eq("contrat", str(contrat)) \
-            .eq("statut", "PENDING") \
-            .execute()
-        return len(res.data) > 0
-    except Exception as e:
-        log.warning(f"Supabase check failed: {e}")
-        return False
-
 def send_sms_campaign():
     log.info("=== Démarrage campagne SMS ===")
 
@@ -61,18 +46,12 @@ def send_sms_campaign():
             local_log = json.load(f)
 
     sent = 0
-    skipped = 0
     errors = 0
 
     for _, row in df.iterrows():
         phone   = str(row["phone"])
         contrat = row["contrat"]
         montant = row["montant"]
-
-        if already_sent(supabase, phone, contrat):
-            log.info(f"[SKIP] {phone} — déjà notifié")
-            skipped += 1
-            continue
 
         message = (
             f"Madame, Monsieur, Votre facture {contrat} est impayee. "
@@ -122,6 +101,7 @@ def send_sms_campaign():
         if supabase:
             try:
                 supabase.table("sms_log").insert(entry).execute()
+                log.info(f"[DB] Enregistré dans Supabase")
             except Exception as e:
                 log.warning(f"Supabase insert failed: {e}")
 
@@ -129,7 +109,7 @@ def send_sms_campaign():
     with open(LOG_FILE, "w", encoding="utf-8") as f:
         json.dump(local_log, f, ensure_ascii=False, indent=2)
 
-    log.info(f"=== Campagne terminée: {sent} envoyés, {skipped} ignorés, {errors} erreurs ===")
+    log.info(f"=== Campagne terminée: {sent} envoyés, {errors} erreurs ===")
 
 if __name__ == "__main__":
     send_sms_campaign()
