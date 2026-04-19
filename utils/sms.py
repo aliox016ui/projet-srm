@@ -1,27 +1,28 @@
 import requests
-import os
+import logging
+from config import INFOBIP_API_KEY, INFOBIP_BASE_URL, SENDER
 
-def send_single_sms(phone, message):
-    api_key = os.getenv("INFOBIP_API_KEY")
-    base_url = os.getenv("INFOBIP_BASE_URL")
-    sender = os.getenv("SENDER", "SRM")
+log = logging.getLogger(__name__)
 
+def send_single_sms(phone: str, message: str) -> dict:
     headers = {
-        "Authorization": f"App {api_key}",
+        "Authorization": f"App {INFOBIP_API_KEY}",
         "Content-Type": "application/json",
         "Accept": "application/json"
     }
     payload = {
         "messages": [{
-            "from": sender,
+            "from": SENDER,
             "destinations": [{"to": phone}],
             "text": message
         }]
     }
     try:
         r = requests.post(
-            f"{base_url}/sms/2/text/advanced",
-            json=payload, headers=headers, timeout=10
+            f"{INFOBIP_BASE_URL}/sms/2/text/advanced",
+            json=payload,
+            headers=headers,
+            timeout=15
         )
         r.raise_for_status()
         data = r.json()
@@ -29,4 +30,5 @@ def send_single_sms(phone, message):
         msg_id = data["messages"][0]["messageId"]
         return {"success": True, "statut": statut, "message_id": msg_id}
     except Exception as e:
+        log.error(f"SMS error: {e}")
         return {"success": False, "statut": "ERREUR", "message_id": ""}
