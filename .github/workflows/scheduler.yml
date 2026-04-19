@@ -1,0 +1,35 @@
+name: SMS Scheduler SRM-MS
+
+on:
+  schedule:
+    - cron: '0 9 1 * *'    # Kul 1 dyal chher f 09:00 UTC
+    - cron: '0 9 15 * *'   # Kul 15 dyal chher f 09:00 UTC
+  workflow_dispatch:         # Test manuel depuis GitHub
+
+jobs:
+  send-sms:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run SMS script
+        env:
+          INFOBIP_API_KEY: ${{ secrets.INFOBIP_API_KEY }}
+          INFOBIP_BASE_URL: ${{ secrets.INFOBIP_BASE_URL }}
+          SENDER: ${{ secrets.SENDER }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          FILTERED_FILE: data/clients_filtered.csv
+          INPUT_FILE: data/clients_test.xlsx
+          LOG_FILE: data/sms_log.json
+        run: python 2_send_sms.py
