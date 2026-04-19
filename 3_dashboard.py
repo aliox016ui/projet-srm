@@ -3,8 +3,17 @@ import pandas as pd
 import json
 import os
 import re
+from supabase import create_client
 
 LOG_FILE = "data/sms_log.json"
+
+# ── SUPABASE ───────────────────────────────────────────────────────
+def get_supabase():
+    url = os.getenv("SUPABASE_URL")
+    key = os.getenv("SUPABASE_KEY")
+    if url and key:
+        return create_client(url, key)
+    return None
 
 st.set_page_config(page_title="SRM-MS", page_icon="https://www.srm-ms.ma/wp-content/uploads/2024/10/cropped-favicon-srm-32x32.png", layout="wide", initial_sidebar_state="collapsed")
 st.markdown("""
@@ -253,14 +262,22 @@ elif st.session_state.page == "dashboard":
     st.markdown("<div class='section-sub'>Suivi en temps réel des envois de relance</div>", unsafe_allow_html=True)
     st.markdown("<div style='height:16px'></div>", unsafe_allow_html=True)
 
-    if not os.path.exists(LOG_FILE):
-        st.info("📭 Aucun SMS envoyé pour le moment.")
-        st.stop()
+    # ── LECTURE SUPABASE ──────────────────────────────────────
+    supabase = get_supabase()
+    if supabase:
+        resp = supabase.table("sms_log").select("*").order("timestamp", desc=True).execute()
+        if not resp.data:
+            st.info("📭 Aucun SMS envoyé pour le moment.")
+            st.stop()
+        df = pd.DataFrame(resp.data)
+    else:
+        if not os.path.exists(LOG_FILE):
+            st.info("📭 Aucun SMS envoyé pour le moment.")
+            st.stop()
+        with open(LOG_FILE, "r", encoding="utf-8") as f:
+            log = json.load(f)
+        df = pd.DataFrame(log)
 
-    with open(LOG_FILE, "r", encoding="utf-8") as f:
-        log = json.load(f)
-
-    df = pd.DataFrame(log)
     df["timestamp"] = pd.to_datetime(df["timestamp"])
 
     total   = len(df)
@@ -333,16 +350,24 @@ elif st.session_state.page == "client":
         chercher = st.button("Rechercher →", use_container_width=True, key="btn_search")
 
         if chercher and recherche.strip():
-            if not os.path.exists(LOG_FILE):
-                st.warning("Aucune donnée disponible pour le moment.")
+            supabase = get_supabase()
+            if supabase:
+                r = recherche.strip()
+                r_intl = "+212" + r[1:] if r.startswith("0") else r
+                resp = supabase.table("sms_log").select("*").execute()
+                df = pd.DataFrame(resp.data)
             else:
-                with open(LOG_FILE, "r", encoding="utf-8") as f:
-                    log = json.load(f)
-                df = pd.DataFrame(log)
-
+                if not os.path.exists(LOG_FILE):
+                    st.warning("Aucune donnée disponible pour le moment.")
+                    df = pd.DataFrame()
+                else:
+                    with open(LOG_FILE, "r", encoding="utf-8") as f:
+                        log = json.load(f)
+                    df = pd.DataFrame(log)
                 r = recherche.strip()
                 r_intl = "+212" + r[1:] if r.startswith("0") else r
 
+            if not df.empty:
                 df["phone"] = df["phone"].astype(str)
                 df["contrat"] = df["contrat"].astype(str)
 

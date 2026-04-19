@@ -43,5 +43,14 @@
     "message": "Madame, Monsieur, Votre facture N20071207 est impayes. La SRM-CS vous offre la possibilite d'echelonner le montant. Veuillez vous rendre a l'agence commerciale la plus proche pour legaliser une demande de facilite.",
     "statut": "PENDING",
     "message_id": "4763102175137952322734"
+  },
+  {
+    "timestamp": "2026-04-19 04:09:54",
+    "phone": "+212770887143",
+    "contrat": "N20071207",
+    "montant": "2500",
+    "message": "Madame, Monsieur, Votre facture N20071207 est impayee. La SRM-CS vous offre la possibilite d'echelonner le montant. Veuillez vous rendre a l'agence commerciale la plus proche.",
+    "statut": "PENDING",
+    "message_id": "4765681946447950401923"
   }
 ]
