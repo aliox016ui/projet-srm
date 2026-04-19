@@ -295,11 +295,42 @@ def show_navbar(active="home"):
         </div>
         <div class='nav-links'>{links_html}</div>
     </div>
+    <style>
+    div[data-testid="stHorizontalBlock"] {{
+        position: absolute;
+        top: 107px;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        padding: 0 40px;
+        background: white;
+        border-bottom: 2px solid #f0fdf4;
+    }}
+    div[data-testid="stHorizontalBlock"] button {{
+        background: transparent !important;
+        color: #6b7280 !important;
+        border: none !important;
+        border-bottom: 2px solid transparent !important;
+        border-radius: 0 !important;
+        padding: 14px 16px !important;
+        font-size: 13px !important;
+        font-weight: 600 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.5px !important;
+        box-shadow: none !important;
+        transform: none !important;
+    }}
+    div[data-testid="stHorizontalBlock"] button:hover {{
+        color: #166534 !important;
+        border-bottom-color: #22c55e !important;
+        background: transparent !important;
+    }}
+    </style>
     """, unsafe_allow_html=True)
 
-    col_pages = st.columns(len(pages) + 3)
+    cols = st.columns(len(pages))
     for i, (key, label) in enumerate(pages):
-        with col_pages[i]:
+        with cols[i]:
             if st.button(label, key=f"nav_{key}", use_container_width=True):
                 st.session_state.page = key
                 st.rerun()
@@ -428,7 +459,7 @@ elif st.session_state.page == "login_admin":
     with c2:
         st.markdown("""
         <div class='login-card'>
-            <div class='login-logo'>💧</div>
+            <div class='login-logo'>logo.png</div>
             <div class='login-title'>SRM-MS</div>
             <div class='login-sub'>Espace Administration</div>
         </div>
