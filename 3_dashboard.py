@@ -2,6 +2,8 @@ import streamlit as st
 import pandas as pd
 import os
 import re
+import base64
+from datetime import date
 from supabase import create_client
 
 st.set_page_config(
@@ -11,6 +13,21 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
+# ── PHOTOS LOCALES ────────────────────────────────────────────────
+def get_image_base64(path):
+    try:
+        with open(path, "rb") as f:
+            return base64.b64encode(f.read()).decode()
+    except:
+        return ""
+
+img1 = get_image_base64("assets/marrakech.jpg")
+img2 = get_image_base64("assets/marrakech2.jpg")
+
+bg1 = f"url('data:image/jpeg;base64,{img1}')" if img1 else "url('https://images.unsplash.com/photo-1597212720158-ae3d645dfdb5?w=1600&q=90')"
+bg2 = f"url('data:image/jpeg;base64,{img2}')" if img2 else "url('https://images.unsplash.com/photo-1539037116277-4db20889f2d4?w=1600&q=90')"
+
+# ── SUPABASE ──────────────────────────────────────────────────────
 def get_supabase():
     url = os.getenv("SUPABASE_URL")
     key = os.getenv("SUPABASE_KEY")
@@ -25,85 +42,89 @@ def load_data():
         return pd.DataFrame(resp.data) if resp.data else pd.DataFrame()
     return pd.DataFrame()
 
-st.markdown("""
+# ── CSS ───────────────────────────────────────────────────────────
+st.markdown(f"""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-* { font-family: 'Inter', sans-serif !important; }
-#MainMenu, footer, header { visibility: hidden; }
-.block-container { padding: 0 !important; max-width: 100% !important; }
-[data-testid="stAppViewContainer"] { background: #f8fafc !important; }
-[data-testid="stHeader"] { display: none; }
-.topbar { background: #111827; color: #9ca3af; padding: 6px 40px; font-size: 12px; display: flex; gap: 24px; align-items: center; }
-.navbar { background: white; border-bottom: 2px solid #f0fdf4; padding: 12px 40px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 999; box-shadow: 0 1px 8px rgba(0,0,0,0.06); }
-.nav-brand { font-size: 16px; font-weight: 800; color: #166534; display: flex; align-items: center; gap: 10px; }
-.nav-dot { width: 10px; height: 10px; background: #22c55e; border-radius: 50%; animation: blink 2s infinite; }
-@keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
-.nav-links { display: flex; gap: 32px; font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.8px; }
-.hero { background: linear-gradient(135deg, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.4) 100%), url('https://images.unsplash.com/photo-1597212720158-ae3d645dfdb5?w=1600&q=90') center/cover no-repeat; padding: 80px 60px; color: white; min-height: 320px; display: flex; flex-direction: column; justify-content: center; }
-.hero-badge { display: inline-block; background: rgba(34,197,94,0.2); border: 1px solid rgba(34,197,94,0.4); color: #86efac; padding: 4px 14px; border-radius: 20px; font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 16px; }
-.hero-title { font-size: 2.4rem; font-weight: 800; line-height: 1.2; max-width: 600px; margin-bottom: 12px; }
-.hero-desc { font-size: 1rem; color: rgba(255,255,255,0.75); max-width: 480px; }
-.about-section { padding: 70px 60px; background: white; display: grid; grid-template-columns: 1fr 1fr; gap: 70px; align-items: center; }
-.about-text h2 { font-size: 1.7rem; font-weight: 800; color: #111; margin-bottom: 16px; }
-.about-text p { font-size: 13.5px; color: #555; line-height: 1.85; margin-bottom: 14px; }
-.stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 32px; }
-.stat-box { background: #f0fdf4; border-radius: 12px; padding: 16px; border-left: 3px solid #22c55e; }
-.stat-value { font-size: 1.5rem; font-weight: 800; color: #166534; }
-.stat-label { font-size: 11px; color: #6b7280; margin-top: 2px; }
-.map-img { width: 100%; border-radius: 16px; box-shadow: 0 8px 30px rgba(0,0,0,0.1); }
-.section { padding: 60px; background: #f8fafc; }
-.section-header { margin-bottom: 40px; }
-.section-title { font-size: 1.6rem; font-weight: 800; color: #111; margin-bottom: 6px; }
-.section-sub { color: #6b7280; font-size: 0.9rem; }
-.space-card { background: white; border-radius: 20px; padding: 36px 28px; text-align: center; border: 1px solid #e5e7eb; transition: all 0.3s; }
-.space-card:hover { box-shadow: 0 8px 30px rgba(0,0,0,0.08); transform: translateY(-3px); }
-.space-icon { font-size: 2.8rem; margin-bottom: 16px; }
-.space-name { font-size: 1.1rem; font-weight: 700; color: #111; margin-bottom: 8px; }
-.space-desc { font-size: 13px; color: #6b7280; line-height: 1.6; }
-.stTextInput > label { font-weight: 600 !important; color: #374151 !important; font-size: 13px !important; }
-.stTextInput > div > div > input { border: 1.5px solid #d1fae5 !important; border-radius: 10px !important; padding: 11px 14px !important; font-size: 14px !important; background: #f9fafb !important; }
-.stTextInput > div > div > input:focus { border-color: #22c55e !important; box-shadow: 0 0 0 3px rgba(34,197,94,0.12) !important; background: white !important; }
-.stButton > button { background: linear-gradient(135deg, #166534, #15803d) !important; color: white !important; border: none !important; border-radius: 10px !important; padding: 12px !important; font-size: 14px !important; font-weight: 600 !important; width: 100% !important; transition: all 0.25s !important; }
-.stButton > button:hover { background: linear-gradient(135deg, #14532d, #166534) !important; box-shadow: 0 4px 15px rgba(22,101,52,0.3) !important; transform: translateY(-1px) !important; }
-.kpi-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; padding: 20px 40px; background: white; border-bottom: 1px solid #f0f0f0; }
-.kpi-card { background: #f8fafc; border-radius: 14px; padding: 18px 20px; display: flex; align-items: center; gap: 14px; border: 1px solid #e5e7eb; }
-.kpi-icon { font-size: 1.8rem; }
-.kpi-value { font-size: 1.8rem; font-weight: 800; color: #111; line-height: 1; }
-.kpi-label { font-size: 11px; color: #6b7280; margin-top: 3px; text-transform: uppercase; }
-.result-card { background: white; border-radius: 16px; padding: 28px; border: 1px solid #e5e7eb; margin-top: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.04); }
-.result-title { font-size: 1rem; font-weight: 700; color: #111; margin-bottom: 20px; padding-bottom: 14px; border-bottom: 1.5px solid #f0fdf4; }
-.result-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f9fafb; font-size: 14px; }
-.result-label { color: #6b7280; font-size: 13px; }
-.result-value { font-weight: 600; color: #111; }
-.badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
-.badge-pending { background: #fef3c7; color: #92400e; }
-.badge-delivered { background: #d1fae5; color: #065f46; }
-.badge-erreur { background: #fee2e2; color: #991b1b; }
-.support-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; margin-top: 28px; }
-.support-card { background: white; border-radius: 16px; padding: 28px 20px; text-align: center; border: 1px solid #e5e7eb; }
-.support-icon { font-size: 2rem; margin-bottom: 12px; }
-.support-title { font-size: 14px; font-weight: 700; color: #111; margin-bottom: 6px; }
-.support-desc { font-size: 12px; color: #6b7280; margin-bottom: 14px; line-height: 1.6; }
-.footer { background: #111827; color: white; padding: 50px 60px; }
-.footer-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 40px; }
-.footer-title { font-size: 11px; font-weight: 700; color: #6b7280; margin-bottom: 14px; text-transform: uppercase; letter-spacing: 1.5px; }
-.footer-info { font-size: 13px; line-height: 2.2; color: rgba(255,255,255,0.7); }
-.footer-bottom { border-top: 1px solid rgba(255,255,255,0.08); margin-top: 36px; padding-top: 18px; font-size: 12px; color: rgba(255,255,255,0.35); text-align: center; }
-.login-hero { background: linear-gradient(135deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.45) 100%), url('https://images.unsplash.com/photo-1597212720158-ae3d645dfdb5?w=1600&q=90') center/cover no-repeat; min-height: 92vh; display: flex; align-items: center; justify-content: center; padding: 40px; }
-.login-card { background: white; border-radius: 24px; padding: 44px 36px; width: 100%; max-width: 420px; box-shadow: 0 30px 80px rgba(0,0,0,0.25); border-top: 4px solid #22c55e; animation: slideUp 0.4s ease; }
-@keyframes slideUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
-.login-logo { text-align: center; font-size: 3rem; margin-bottom: 8px; }
-.login-title { text-align: center; color: #166534; font-size: 1.5rem; font-weight: 800; }
-.login-sub { text-align: center; color: #9ca3af; font-size: 12px; margin-bottom: 28px; text-transform: uppercase; letter-spacing: 1px; }
-.dash-content { padding: 24px 40px; background: #f8fafc; }
+* {{ font-family: 'Inter', sans-serif !important; }}
+#MainMenu, footer, header {{ visibility: hidden; }}
+.block-container {{ padding: 0 !important; max-width: 100% !important; }}
+[data-testid="stAppViewContainer"] {{ background: #f8fafc !important; }}
+[data-testid="stHeader"] {{ display: none; }}
+.topbar {{ background: #111827; color: #9ca3af; padding: 6px 40px; font-size: 12px; display: flex; gap: 24px; align-items: center; }}
+.navbar {{ background: white; border-bottom: 2px solid #f0fdf4; padding: 12px 40px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 999; box-shadow: 0 1px 8px rgba(0,0,0,0.06); }}
+.nav-brand {{ font-size: 16px; font-weight: 800; color: #166534; display: flex; align-items: center; gap: 10px; }}
+.nav-dot {{ width: 10px; height: 10px; background: #22c55e; border-radius: 50%; animation: blink 2s infinite; }}
+@keyframes blink {{ 0%,100% {{ opacity: 1; }} 50% {{ opacity: 0.3; }} }}
+.nav-links {{ display: flex; gap: 32px; font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.8px; }}
+.hero {{ background: linear-gradient(135deg, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.4) 100%), {bg1} center/cover no-repeat; padding: 80px 60px; color: white; min-height: 320px; display: flex; flex-direction: column; justify-content: center; }}
+.hero-badge {{ display: inline-block; background: rgba(34,197,94,0.2); border: 1px solid rgba(34,197,94,0.4); color: #86efac; padding: 4px 14px; border-radius: 20px; font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 16px; }}
+.hero-title {{ font-size: 2.4rem; font-weight: 800; line-height: 1.2; max-width: 600px; margin-bottom: 12px; }}
+.hero-desc {{ font-size: 1rem; color: rgba(255,255,255,0.75); max-width: 480px; }}
+.about-section {{ padding: 70px 60px; background: white; display: grid; grid-template-columns: 1fr 1fr; gap: 70px; align-items: center; }}
+.about-text h2 {{ font-size: 1.7rem; font-weight: 800; color: #111; margin-bottom: 16px; }}
+.about-text p {{ font-size: 13.5px; color: #555; line-height: 1.85; margin-bottom: 14px; }}
+.stats-grid {{ display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 32px; }}
+.stat-box {{ background: #f0fdf4; border-radius: 12px; padding: 16px; border-left: 3px solid #22c55e; }}
+.stat-value {{ font-size: 1.5rem; font-weight: 800; color: #166534; }}
+.stat-label {{ font-size: 11px; color: #6b7280; margin-top: 2px; }}
+.map-img {{ width: 100%; border-radius: 16px; box-shadow: 0 8px 30px rgba(0,0,0,0.1); }}
+.section {{ padding: 60px; background: #f8fafc; }}
+.section-header {{ margin-bottom: 40px; }}
+.section-title {{ font-size: 1.6rem; font-weight: 800; color: #111; margin-bottom: 6px; }}
+.section-sub {{ color: #6b7280; font-size: 0.9rem; }}
+.space-card {{ background: white; border-radius: 20px; padding: 36px 28px; text-align: center; border: 1px solid #e5e7eb; transition: all 0.3s; }}
+.space-card:hover {{ box-shadow: 0 8px 30px rgba(0,0,0,0.08); transform: translateY(-3px); }}
+.space-icon {{ font-size: 2.8rem; margin-bottom: 16px; }}
+.space-name {{ font-size: 1.1rem; font-weight: 700; color: #111; margin-bottom: 8px; }}
+.space-desc {{ font-size: 13px; color: #6b7280; line-height: 1.6; }}
+.stTextInput > label {{ font-weight: 600 !important; color: #374151 !important; font-size: 13px !important; }}
+.stTextInput > div > div > input {{ border: 1.5px solid #d1fae5 !important; border-radius: 10px !important; padding: 11px 14px !important; font-size: 14px !important; background: #f9fafb !important; }}
+.stTextInput > div > div > input:focus {{ border-color: #22c55e !important; box-shadow: 0 0 0 3px rgba(34,197,94,0.12) !important; background: white !important; }}
+.stButton > button {{ background: linear-gradient(135deg, #166534, #15803d) !important; color: white !important; border: none !important; border-radius: 10px !important; padding: 12px !important; font-size: 14px !important; font-weight: 600 !important; width: 100% !important; transition: all 0.25s !important; }}
+.stButton > button:hover {{ background: linear-gradient(135deg, #14532d, #166534) !important; box-shadow: 0 4px 15px rgba(22,101,52,0.3) !important; transform: translateY(-1px) !important; }}
+.kpi-row {{ display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; padding: 20px 40px; background: white; border-bottom: 1px solid #f0f0f0; }}
+.kpi-card {{ background: #f8fafc; border-radius: 14px; padding: 18px 20px; display: flex; align-items: center; gap: 14px; border: 1px solid #e5e7eb; }}
+.kpi-icon {{ font-size: 1.8rem; }}
+.kpi-value {{ font-size: 1.8rem; font-weight: 800; color: #111; line-height: 1; }}
+.kpi-label {{ font-size: 11px; color: #6b7280; margin-top: 3px; text-transform: uppercase; }}
+.result-card {{ background: white; border-radius: 16px; padding: 28px; border: 1px solid #e5e7eb; margin-top: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.04); }}
+.result-title {{ font-size: 1rem; font-weight: 700; color: #111; margin-bottom: 20px; padding-bottom: 14px; border-bottom: 1.5px solid #f0fdf4; }}
+.result-row {{ display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f9fafb; font-size: 14px; }}
+.result-label {{ color: #6b7280; font-size: 13px; }}
+.result-value {{ font-weight: 600; color: #111; }}
+.badge {{ display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }}
+.badge-pending {{ background: #fef3c7; color: #92400e; }}
+.badge-delivered {{ background: #d1fae5; color: #065f46; }}
+.badge-erreur {{ background: #fee2e2; color: #991b1b; }}
+.support-grid {{ display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; margin-top: 28px; }}
+.support-card {{ background: white; border-radius: 16px; padding: 28px 20px; text-align: center; border: 1px solid #e5e7eb; }}
+.support-icon {{ font-size: 2rem; margin-bottom: 12px; }}
+.support-title {{ font-size: 14px; font-weight: 700; color: #111; margin-bottom: 6px; }}
+.support-desc {{ font-size: 12px; color: #6b7280; margin-bottom: 14px; line-height: 1.6; }}
+.footer {{ background: #111827; color: white; padding: 50px 60px; }}
+.footer-grid {{ display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 40px; }}
+.footer-title {{ font-size: 11px; font-weight: 700; color: #6b7280; margin-bottom: 14px; text-transform: uppercase; letter-spacing: 1.5px; }}
+.footer-info {{ font-size: 13px; line-height: 2.2; color: rgba(255,255,255,0.7); }}
+.footer-bottom {{ border-top: 1px solid rgba(255,255,255,0.08); margin-top: 36px; padding-top: 18px; font-size: 12px; color: rgba(255,255,255,0.35); text-align: center; }}
+.login-hero {{ background: linear-gradient(135deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.45) 100%), {bg2} center/cover no-repeat; min-height: 92vh; display: flex; align-items: center; justify-content: center; padding: 40px; }}
+.login-card {{ background: white; border-radius: 24px; padding: 44px 36px; width: 100%; max-width: 420px; box-shadow: 0 30px 80px rgba(0,0,0,0.25); border-top: 4px solid #22c55e; animation: slideUp 0.4s ease; }}
+@keyframes slideUp {{ from {{ opacity: 0; transform: translateY(24px); }} to {{ opacity: 1; transform: translateY(0); }} }}
+.login-logo {{ text-align: center; font-size: 3rem; margin-bottom: 8px; }}
+.login-title {{ text-align: center; color: #166534; font-size: 1.5rem; font-weight: 800; }}
+.login-sub {{ text-align: center; color: #9ca3af; font-size: 12px; margin-bottom: 28px; text-transform: uppercase; letter-spacing: 1px; }}
+.dash-content {{ padding: 24px 40px; background: #f8fafc; }}
+.dash-hero {{ background: linear-gradient(135deg, rgba(0,0,0,0.7), rgba(0,0,0,0.4)), {bg1} center/cover; padding: 50px 60px; color: white; border-bottom: 1px solid #eee; }}
 </style>
 """, unsafe_allow_html=True)
 
+# ── SESSION STATE ─────────────────────────────────────────────────
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 if "page" not in st.session_state:
     st.session_state.page = "home"
 
+# ── NAVBAR ────────────────────────────────────────────────────────
 def show_navbar():
     st.markdown("""
     <div class='topbar'>
@@ -124,6 +145,7 @@ def show_navbar():
     </div>
     """, unsafe_allow_html=True)
 
+# ── FOOTER ────────────────────────────────────────────────────────
 def show_footer():
     st.markdown("""
     <div class='footer'>
@@ -255,12 +277,7 @@ elif st.session_state.page == "dashboard":
 
     # HERO DASHBOARD
     st.markdown("""
-    <div style="
-        background: linear-gradient(135deg, rgba(0,0,0,0.7), rgba(0,0,0,0.4)),
-        url('https://images.unsplash.com/photo-1597212720158-ae3d645dfdb5?w=1600&q=90') center/cover;
-        padding: 50px 60px;
-        color: white;
-        border-bottom: 1px solid #eee;">
+    <div class='dash-hero'>
         <h2 style='margin:0;font-weight:800;font-size:1.8rem;'>📊 Tableau de bord SMS</h2>
         <p style='margin:6px 0 0 0;opacity:0.8;font-size:14px;'>Suivi intelligent des envois — SRM Marrakech-Safi</p>
     </div>
@@ -274,12 +291,14 @@ elif st.session_state.page == "dashboard":
             st.session_state.page = "home"
             st.rerun()
 
+    # LOAD DATA
     df = load_data()
     if df.empty:
         st.info("📭 Aucun SMS envoyé pour le moment.")
         st.stop()
 
     df["timestamp"] = pd.to_datetime(df["timestamp"])
+
     total   = len(df)
     pending = len(df[df["statut"] == "PENDING"])
     livre   = len(df[df["statut"] == "DELIVERED"])
@@ -322,15 +341,25 @@ elif st.session_state.page == "dashboard":
     st.markdown("<div class='dash-content'>", unsafe_allow_html=True)
 
     # FILTERS
+    today = date.today()
+    dates_dispos = sorted(df["timestamp"].dt.date.unique(), reverse=True)
+
     col1, col2, col3 = st.columns([1, 1, 2])
     with col1:
         statuts = ["Tous"] + sorted(df["statut"].unique().tolist())
-        choix_statut = st.selectbox("Statut", statuts)
+        choix_statut = st.selectbox("🔍 Statut", statuts)
     with col2:
-        dates = sorted(df["timestamp"].dt.date.unique(), reverse=True)
-        date_choisie = st.selectbox("Date", ["Toutes"] + [str(d) for d in dates])
+        dates_options = [str(d) for d in dates_dispos]
+        default_idx = 0
+        if str(today) in dates_options:
+            default_idx = dates_options.index(str(today))
+        date_choisie = st.selectbox(
+            "📅 Date",
+            ["Toutes"] + dates_options,
+            index=default_idx + 1 if str(today) in dates_options else 0
+        )
     with col3:
-        search = st.text_input("Recherche", placeholder="Numéro ou contrat...")
+        search = st.text_input("🔎 Recherche", placeholder="Numéro ou contrat...")
 
     # APPLY FILTERS
     df_f = df.copy()
@@ -356,17 +385,68 @@ elif st.session_state.page == "dashboard":
             "timestamp": "Date", "phone": "Téléphone",
             "contrat": "Contrat", "montant": "Montant", "statut": "Statut"
         })
-        st.dataframe(df_show[["Date","Téléphone","Contrat","Montant","Statut"]], use_container_width=True, height=420)
+        st.dataframe(
+            df_show[["Date","Téléphone","Contrat","Montant","Statut"]],
+            use_container_width=True,
+            height=420
+        )
 
     with col_c:
-        st.markdown("**📊 Statistiques**")
+        st.markdown("**📊 Répartition des statuts**")
+
+        # Pie chart professionnel
         chart_data = df["statut"].value_counts().reset_index()
         chart_data.columns = ["Statut", "Nombre"]
-        st.bar_chart(chart_data.set_index("Statut"), color="#16a34a", height=220)
 
+        color_map = {
+            "PENDING": "#f59e0b",
+            "DELIVERED": "#22c55e",
+            "ERREUR": "#ef4444"
+        }
+
+        total_chart = chart_data["Nombre"].sum()
+        pie_html = """
+        <div style='position:relative;width:200px;height:200px;margin:0 auto;'>
+        <svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'>
+        """
+        start_angle = -90
+        for _, row in chart_data.iterrows():
+            pct = row["Nombre"] / total_chart
+            angle = pct * 360
+            color = color_map.get(row["Statut"], "#6b7280")
+            x1 = 100 + 90 * __import__('math').cos(__import__('math').radians(start_angle))
+            y1 = 100 + 90 * __import__('math').sin(__import__('math').radians(start_angle))
+            x2 = 100 + 90 * __import__('math').cos(__import__('math').radians(start_angle + angle))
+            y2 = 100 + 90 * __import__('math').sin(__import__('math').radians(start_angle + angle))
+            large = 1 if angle > 180 else 0
+            pie_html += f'<path d="M100,100 L{x1:.1f},{y1:.1f} A90,90 0 {large},1 {x2:.1f},{y2:.1f} Z" fill="{color}" stroke="white" stroke-width="2"/>'
+            start_angle += angle
+
+        pie_html += """
+        <circle cx='100' cy='100' r='50' fill='white'/>
+        </svg></div>
+        """
+
+        # Legend
+        legend_html = "<div style='margin-top:12px;'>"
+        for _, row in chart_data.iterrows():
+            pct = round(row["Nombre"] / total_chart * 100)
+            color = color_map.get(row["Statut"], "#6b7280")
+            legend_html += f"""
+            <div style='display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:13px;'>
+                <div style='width:12px;height:12px;border-radius:50%;background:{color};flex-shrink:0;'></div>
+                <span style='color:#555;flex:1;'>{row["Statut"]}</span>
+                <span style='font-weight:700;color:#111;'>{pct}%</span>
+                <span style='color:#6b7280;'>({row["Nombre"]})</span>
+            </div>"""
+        legend_html += "</div>"
+
+        st.markdown(pie_html + legend_html, unsafe_allow_html=True)
+
+        # Résumé filtré
         st.markdown(f"""
-        <div style='background:white;border-radius:12px;padding:16px;border:1px solid #e5e7eb;font-size:13px;margin-top:12px;'>
-            <div style='font-weight:700;color:#111;margin-bottom:10px;'>Résumé filtré</div>
+        <div style='background:white;border-radius:12px;padding:16px;border:1px solid #e5e7eb;font-size:13px;margin-top:16px;'>
+            <div style='font-weight:700;color:#111;margin-bottom:10px;'>Résumé — {date_choisie if date_choisie != "Toutes" else "Tout"}</div>
             <div style='display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f3f4f6;'>
                 <span style='color:#6b7280;'>Total</span><span style='font-weight:600;'>{len(df_f)}</span>
             </div>
@@ -390,8 +470,8 @@ elif st.session_state.page == "dashboard":
 # ══════════════════════════════════════════════════════════════════
 elif st.session_state.page == "client":
     show_navbar()
-    st.markdown("""
-    <div class='hero' style="background: linear-gradient(135deg, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.4) 100%), url('https://images.unsplash.com/photo-1539037116277-4db20889f2d4?w=1600&q=90') center/cover no-repeat;">
+    st.markdown(f"""
+    <div class='hero' style="background: linear-gradient(135deg, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.4) 100%), {bg2} center/cover no-repeat;">
         <div class='hero-badge'>Espace Client</div>
         <div class='hero-title'>Consultez vos factures impayées</div>
         <div class='hero-desc'>Entrez votre numéro de téléphone ou numéro de contrat pour consulter votre situation.</div>
