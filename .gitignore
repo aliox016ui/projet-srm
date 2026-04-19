@@ -4,4 +4,5 @@ __pycache__/
 data/sms_log.json
 data/clients_filtered.csv
 data/clients_filtres.xlsx
-data/clients_test.xlsx
+data/clients_test.xlsx.env 
+.env.txt 
